@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const app = express();
 require('dotenv').config();
@@ -28,11 +28,38 @@ async function run() {
     await client.connect();
      
     const servicesCollection = client.db('geniusCar').collection('services');
+    const bookingsCollection = client.db('geniusCar').collection('bookings');
 
     app.get('/services', async (req, res) => {
         const result = await servicesCollection.find().toArray();
         res.send(result)
     });
+
+    app.get('/services/:id', async(req, res) => {
+      const id = req.params.id;  
+      const query = {_id: new ObjectId(id)};
+      const options = {
+         
+        // Include only the `title` and `imdb` fields in the returned document
+        projection: {  title: 1, price: 1, img:1 },
+      };
+      const result = await servicesCollection.findOne(query, options)
+      res.send(result)
+    });
+
+
+    // bookings
+    app.post('/bookings', async (req, res) => {
+      const services = req.body;
+      const result = await bookingsCollection.insertOne(services);
+      res.send(result)
+    });
+
+    app.get('/bookings', async (req, res) => {
+      console.log(req.query);
+      const result = await bookingsCollection.find().toArray();
+      res.send(result)
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
