@@ -56,7 +56,7 @@ async function run() {
     });
 
     app.get('/bookings', async (req, res) => {
-      console.log(req.query.email);
+    
       let query ={};
       if(req.query?.email){
         query = {
@@ -72,6 +72,20 @@ async function run() {
       const query = {_id: new ObjectId(id)};
       const result = await bookingsCollection.deleteOne(query);
       res.send(result)
+    });
+
+    app.put('/bookings/:id', async(req, res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)};
+      const updatedBooking = req.body;
+      const updatedDoc = {
+        $set: {
+          status: updatedBooking.status
+        }
+      };
+      const result = await bookingsCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+      
     })
 
     // Send a ping to confirm a successful connection
