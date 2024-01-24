@@ -48,7 +48,20 @@ async function run() {
     const bookingsCollection = client.db('geniusCar').collection('bookings');
 
     app.get('/services', async (req, res) => {
-        const result = await servicesCollection.find().toArray();
+      const sort = req.query.sort;
+        console.log(sort);
+        const search = req.query.search;
+        console.log(search);
+        // const query = { price : {$gte: 30, $lte: 150}};
+        const query = {title : {$regex : search, $options : 'i'}};
+        const options = {
+          // Sort matched documents in descending order by rating
+          sort: { 
+            "price":  sort === 'asc' ? 1 : -1 
+          },
+         
+        };
+        const result = await servicesCollection.find( query, options).toArray();
         res.send(result)
     });
 
@@ -69,7 +82,7 @@ async function run() {
       const user = req.body;
       console.log(user);
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: '1h'
+        expiresIn: '1h'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
       });
       res.send({token})
     })
